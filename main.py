@@ -52,3 +52,7 @@ def add_product(product: SchemaProduct):
 def get_products():
     products = db.session.query(Product).all()
     return products
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

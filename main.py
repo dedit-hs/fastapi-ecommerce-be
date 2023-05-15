@@ -5,11 +5,13 @@ import uvicorn
 
 from fastapi import Depends, FastAPI, HTTPException
 from auth import AuthHandler
-from models import Category, Customer, Product
+from models import Category, Customer, Product, ProductSize, Size
 from schema import Category as SchemaCategory
 from schema import Product as SchemaProduct
 from schema import AuthDetails as SchemaAuth
 from schema import Customer as SchemaCustomer
+from schema import ProductSize as SchemaProductSize
+from schema import Size as SchemaSize
 
 app = FastAPI()
 load_dotenv(".env")
@@ -65,7 +67,7 @@ def get_category():
 
 
 @app.get("/category/{id}")
-def get_category_by_name(id):
+def get_category_by_id(id):
     category = db.session.query(Category).get(id)
     return category
 
@@ -92,7 +94,7 @@ def get_products(customer=Depends(auth_handler.auth_wrapper)):
 
 
 @app.get("/products/{id}")
-def get_product(id, customer=Depends(auth_handler.auth_wrapper)):
+def get_product_by_id(id, customer=Depends(auth_handler.auth_wrapper)):
     product = db.session.query(Product).get(id)
     return product
 
@@ -102,6 +104,33 @@ def get_products_by_category(id):
     products = db.session.query(Product).filter_by(category_id=id).all()
     return products
 
+
+@app.post("/size/add", response_model=SchemaSize)
+def add_size(size: SchemaSize):
+    new_size = Size(
+        size=size.size
+    )
+    db.session.add(new_size)
+    db.session.commit()
+    return new_size
+
+
+@app.post("/product/{id}/addsize")
+def add_product_size(id, size: SchemaProductSize):
+    new_product_size = ProductSize(
+        product_id=id,
+        size_id=size.size_id
+    )
+    db.session.add(new_product_size)
+    db.session.commit()
+
+    return {"message": "Size was successfully added."}
+
+
+@app.get("/product/{id}/sizes")
+def get_product_sizes(id):
+    sizes = db.session.query(Size.size).join(ProductSize, Size.id == ProductSize.size_id).where(ProductSize.product_id==id).all()
+    return sizes
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

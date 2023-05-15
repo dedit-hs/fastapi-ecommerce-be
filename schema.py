@@ -22,6 +22,12 @@ class Category(BaseModel):
     class Config:
         orm_mode = True
 
+class Size(BaseModel):
+    size: str
+
+    class Config:
+        orm_mode = True
+
 
 class Product(BaseModel):
     name: str
@@ -30,6 +36,15 @@ class Product(BaseModel):
     color: str
     price: int
     stock: int
+    image_url: str
+
+    class Config:
+        orm_mode = True
+
+
+class ProductSize(BaseModel):
+    product_id: int
+    size_id: int
 
     class Config:
         orm_mode = True

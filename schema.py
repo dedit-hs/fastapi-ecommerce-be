@@ -1,10 +1,16 @@
 from pydantic import BaseModel
 
 
+class AuthDetails(BaseModel):
+    email: str
+    password: str
+
+
 class Customer(BaseModel):
     name: str
     email: str
     address: str
+    password: str
 
     class Config:
         orm_mode = True

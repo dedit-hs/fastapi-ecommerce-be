@@ -10,28 +10,35 @@ class Customer(Base):
     __tablename__ = "customer"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    email = Column(String)
+    email = Column(String, unique=True)
     address = Column(String)
     password = Column(String)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
 class Image(Base):
     __tablename__ = "image"
     id = Column(Integer, primary_key=True)
     image_url = Column(String)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class Size(Base):
+    __tablename__ = "size"
+    id = Column(Integer, primary_key=True)
+    size = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
 class Category(Base):
     __tablename__ = "category"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
-
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
 class Product(Base):
@@ -40,11 +47,12 @@ class Product(Base):
     name = Column(String)
     description = Column(String)
     category_id = Column(Integer, ForeignKey("category.id"))
+    image_url = Column(String)
     color = Column(String)
     price = Column(String)
     stock = Column(Integer)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     category = relationship("Category")
 
 
@@ -53,11 +61,21 @@ class ProductImage(Base):
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("product.id"))
     image_id = Column(Integer, ForeignKey("image.id"))
-    default = Column(Boolean, default=False)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     product = relationship("Product")
     image = relationship("Image")
+
+
+class ProductSize(Base):
+    __tablename__ = "product_size"
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("product.id"))
+    size_id = Column(Integer, ForeignKey("size.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    product = relationship("Product")
+    size = relationship("Size")
 
 
 class Order(Base):
@@ -66,8 +84,8 @@ class Order(Base):
     customer_id = Column(Integer, ForeignKey("customer.id"))
     total = Column(Integer)
     status = Column(String)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     customer = relationship("Customer")
 
 
@@ -78,8 +96,8 @@ class OrderDetail(Base):
     product_id = Column(Integer, ForeignKey("product.id"))
     quantity = Column(Integer)
     price = Column(Integer)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     order = relationship("Order")
     product = relationship("Product")
 
@@ -91,8 +109,8 @@ class Cart(Base):
     product_id = Column(Integer, ForeignKey("product.id"))
     quantity = Column(Integer)
     price = Column(Integer)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     customer = relationship("Customer")
     product = relationship("Product")
 
@@ -103,5 +121,5 @@ class Admin(Base):
     name = Column(String)
     email = Column(String)
     password = Column(String)
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
-    updated_at=Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

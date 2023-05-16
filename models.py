@@ -107,6 +107,7 @@ class Cart(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customer.id"))
     product_id = Column(Integer, ForeignKey("product.id"))
+    size = Column(String)
     quantity = Column(Integer)
     price = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

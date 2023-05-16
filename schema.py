@@ -22,6 +22,7 @@ class Category(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Size(BaseModel):
     size: str
 
@@ -43,7 +44,6 @@ class Product(BaseModel):
 
 
 class ProductSize(BaseModel):
-    product_id: int
     size_id: int
 
     class Config:

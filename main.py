@@ -52,7 +52,13 @@ def login(auth_details: SchemaAuth):
     return {"accessToken": token}
 
 
-@app.post("/category/add", response_model=SchemaCategory)
+# customer=Depends(auth_handler.auth_wrapper)
+
+
+@app.post(
+    "/category/add",
+    response_model=SchemaCategory,
+)
 def add_category(category: SchemaCategory):
     db_category = Category(name=category.name)
     db.session.add(db_category)
@@ -72,7 +78,10 @@ def get_category_by_id(id):
     return category
 
 
-@app.post("/product/add", response_model=SchemaProduct)
+@app.post(
+    "/product/add",
+    response_model=SchemaProduct,
+)
 def add_product(product: SchemaProduct):
     db_product = Product(
         name=product.name,
@@ -88,14 +97,20 @@ def add_product(product: SchemaProduct):
 
 
 @app.get("/products")
-def get_products(customer=Depends(auth_handler.auth_wrapper)):
+def get_products():
     products = db.session.query(Product).all()
     return products
 
 
 @app.get("/products/{id}")
-def get_product_by_id(id, customer=Depends(auth_handler.auth_wrapper)):
-    product = db.session.query(Product).get(id)
+def get_product_by_id(id):
+    product = (
+        db.session.query(Product)
+        .join(ProductSize, Product.id == ProductSize.product_id)
+        .join(Size, ProductSize.size_id == Size.id)
+        .where(Product.id == id)
+        .all()
+    )
     return product
 
 
@@ -107,9 +122,7 @@ def get_products_by_category(id):
 
 @app.post("/size/add", response_model=SchemaSize)
 def add_size(size: SchemaSize):
-    new_size = Size(
-        size=size.size
-    )
+    new_size = Size(size=size.size)
     db.session.add(new_size)
     db.session.commit()
     return new_size
@@ -117,10 +130,7 @@ def add_size(size: SchemaSize):
 
 @app.post("/product/{id}/addsize")
 def add_product_size(id, size: SchemaProductSize):
-    new_product_size = ProductSize(
-        product_id=id,
-        size_id=size.size_id
-    )
+    new_product_size = ProductSize(product_id=id, size_id=size.size_id)
     db.session.add(new_product_size)
     db.session.commit()
 
@@ -129,8 +139,14 @@ def add_product_size(id, size: SchemaProductSize):
 
 @app.get("/product/{id}/sizes")
 def get_product_sizes(id):
-    sizes = db.session.query(Size.size).join(ProductSize, Size.id == ProductSize.size_id).where(ProductSize.product_id==id).all()
+    sizes = (
+        db.session.query(Size)
+        .join(ProductSize, Size.id == ProductSize.size_id)
+        .where(ProductSize.product_id == id)
+        .all()
+    )
     return sizes
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

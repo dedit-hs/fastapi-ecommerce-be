@@ -16,21 +16,8 @@ class Customer(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-
-class Image(Base):
-    __tablename__ = "image"
-    id = Column(Integer, primary_key=True)
-    image_url = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-
-class Size(Base):
-    __tablename__ = "size"
-    id = Column(Integer, primary_key=True)
-    size = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    orders = relationship("Order", back_populates="customer")
+    cart = relationship("Cart", back_populates="customer")
 
 
 class Category(Base):
@@ -39,6 +26,8 @@ class Category(Base):
     name = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    products = relationship("Product", back_populates="category")
 
 
 class Product(Base):
@@ -50,32 +39,37 @@ class Product(Base):
     image_url = Column(String)
     color = Column(String)
     price = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    category = relationship("Category", back_populates="products")
+    sizes = relationship("Size", back_populates="product")
+    gallery = relationship("Image", back_populates="product")
+    detail = relationship("OrderDetail", back_populates="product")
+    cart = relationship("Cart", back_populates="product")
+
+
+class Image(Base):
+    __tablename__ = "image"
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey("product.id"))
+    image_url = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    product = relationship("Product", back_populates="gallery")
+
+
+class Size(Base):
+    __tablename__ = "size"
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey("product.id"))
+    size = Column(String)
     stock = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    category = relationship("Category")
 
-
-class ProductImage(Base):
-    __tablename__ = "product_image"
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("product.id"))
-    image_id = Column(Integer, ForeignKey("image.id"))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    product = relationship("Product")
-    image = relationship("Image")
-
-
-class ProductSize(Base):
-    __tablename__ = "product_size"
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("product.id"))
-    size_id = Column(Integer, ForeignKey("size.id"))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    product = relationship("Product")
-    size = relationship("Size")
+    product = relationship("Product", back_populates="sizes")
 
 
 class Order(Base):
@@ -86,7 +80,9 @@ class Order(Base):
     status = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    customer = relationship("Customer")
+
+    customer = relationship("Customer", back_populates="orders")
+    details = relationship("OrderDetail", back_populates="order")
 
 
 class OrderDetail(Base):
@@ -98,8 +94,9 @@ class OrderDetail(Base):
     price = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    order = relationship("Order")
-    product = relationship("Product")
+
+    order = relationship("Order", back_populates="details")
+    product = relationship("Product", back_populates="detail")
 
 
 class Cart(Base):
@@ -112,8 +109,9 @@ class Cart(Base):
     price = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    customer = relationship("Customer")
-    product = relationship("Product")
+
+    customer = relationship("Customer", back_populates="cart")
+    product = relationship("Product", back_populates="cart")
 
 
 class Admin(Base):
